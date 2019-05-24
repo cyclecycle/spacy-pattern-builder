@@ -20,7 +20,7 @@ connected_tokens = util.smallest_connected_subgraph(match_tokens, doc)
 assert match_tokens == connected_tokens
 
 # Specify the token attributes / features to use
-feature_dict = {  # This is equal to the default feature_dict
+feature_dict = {  # This here is equal to the default feature_dict
     'DEP': 'dep_',
     'TAG': 'tag_'
 }
