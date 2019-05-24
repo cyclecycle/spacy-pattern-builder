@@ -14,7 +14,7 @@ match_tokens = [doc[i] for i in [0, 1, 3]]  # [We, introduce, methods]
 all tokens must have a path to all other tokens in the list,
 without needing to traverse tokens outside of the list.
 Otherwise, spacy-pattern-builder will raise a TokensNotFullyConnectedError.
-You can get the connected set that includes your tokens with the following: '''
+You can get a connected set that includes your tokens with the following: '''
 from spacy_pattern_builder import util
 connected_tokens = util.smallest_connected_subgraph(match_tokens, doc)
 assert match_tokens == connected_tokens
