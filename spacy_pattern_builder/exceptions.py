@@ -1,0 +1,2 @@
+class TokensNotFullyConnectedError(Exception):
+    pass
