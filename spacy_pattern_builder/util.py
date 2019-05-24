@@ -62,8 +62,14 @@ def shortest_dependency_path(nx_graph, doc, source, target):
     return dep_path
 
 
-def smallest_connected_subgraph(with_tokens, nx_graph, doc):
+def smallest_connected_subgraph(with_tokens, doc, nx_graph=None):
     # Find root nodes
+    if not nx_graph:
+        nx_graph = doc_to_nx_graph(doc)
+    try:
+        doc[0]._.depth
+    except AttributeError:
+        annotate_token_depth(doc)
     min_depth = min([t._.depth for t in with_tokens])
     roots = [t for t in with_tokens if t._.depth == min_depth]
     non_roots = [t for t in with_tokens if t not in roots]

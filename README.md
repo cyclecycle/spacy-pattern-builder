@@ -2,6 +2,10 @@
 
 Reverse engineer patterns for use with SpaCy's DependencyTreeMatcher by providing training examples.
 
+## Motivation
+
+Generating patterns programmatically from training data is more efficient than creating them manually.
+
 ## Installation
 
 With pip:

@@ -3,7 +3,7 @@ Tests for `spacy-pattern-builder` module.
 """
 import pytest
 import en_core_web_sm
-from spacy_pattern_builder.spacy_pattern_builder import build_dependency_pattern
+from spacy_pattern_builder import build_dependency_pattern
 from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError
 import spacy_pattern_builder.util as util
 
