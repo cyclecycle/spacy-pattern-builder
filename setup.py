@@ -33,6 +33,7 @@ setup(
     package_dir={'spacy-pattern-builder': 'spacy-pattern-builder'},
     include_package_data=True,
     install_requires=[
+        'networkx==2.3',
     ],
     license='MIT',
     zip_safe=False,
