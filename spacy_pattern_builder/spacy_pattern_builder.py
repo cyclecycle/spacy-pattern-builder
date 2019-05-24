@@ -1,7 +1,7 @@
 import itertools
 from pprint import pprint
 import spacy_pattern_builder.util as util
-from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError
+from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError, DuplicateTokensError, TokenNotInMatchTokens
 
 
 DEFAULT_BUILD_PATTERN_FEATURE_DICT = {
@@ -14,8 +14,15 @@ def node_name(token):
     return 'node{0}'.format(token.i)
 
 
+def node_features(token, feature_dict):
+    node_features = {
+        name: getattr(token, feature) for name, feature in feature_dict.items()
+    }
+    return node_features
+
+
 def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTERN_FEATURE_DICT, nx_graph=None):
-    '''Build a depedency pattern for use with DependencyTreeMatcher that will match the set of tokens provided in "match_tokens". This set of tokens MUST form a fully connected graph.
+    '''Build a depedency pattern for use with DependencyTreeMatcher that will match the set of tokens provided in "match_tokens". This set of tokens must form a fully connected graph.
 
     Arguments:
         doc {SpaCy Doc object}
@@ -26,49 +33,41 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     Returns:
         [list] -- Dependency pattern in the format consumed by SpaCy's DependencyTreeMatcher
     '''
+    # Pre-flight checks
     if not nx_graph:
         nx_graph = util.doc_to_nx_graph(doc)
     try:
         doc[0]._.depth
-    except:
+    except AttributeError:
         util.annotate_token_depth(doc)
-    smallest_connect_subgraph_tokens = util.smallest_connected_subgraph(
+    connected_tokens = util.smallest_connected_subgraph(
         match_tokens, doc, nx_graph=nx_graph)
-    tokens_not_fully_connected = match_tokens != smallest_connect_subgraph_tokens
+    tokens_not_fully_connected = match_tokens != connected_tokens
     if tokens_not_fully_connected:
-        raise TokensNotFullyConnectedError('Try expanding the training example to include all tokens in between those you are trying to match. Or, try the "role-pattern" module which handles this for you.')
-    token_depths = [t._.depth for t in match_tokens]
-    lowest_depth = min(token_depths)
-    match_tokens = util.sort_by_depth(match_tokens)
-    spacy_dep_pattern = []
-    for i, t in enumerate(match_tokens):
-        depth = t._.depth
-        token_pattern = {
-            name: getattr(t, feature) for name, feature in feature_dict.items()
-        }
-        depths_above = list(range(lowest_depth, depth))
-        if not depths_above:  # This is the root of a pattern
-            dep_pattern_element = {'SPEC': {'NODE_NAME': node_name(t)}, 'PATTERN': token_pattern}
-            spacy_dep_pattern.append(dep_pattern_element)
-        if depths_above:  # This is not a root token
-            # Find the nearest parent node and set that as the head
-            head_depth = depths_above[-1]
-            head_candidates = util.filter_by_depth(head_depth, match_tokens)
-            shortest_path = None
-            for head_candidate in head_candidates:
-                path = util.shortest_dependency_path(nx_graph, doc, t, head_candidate)
-                if not shortest_path or len(path) < len(shortest_path):
-                    shortest_path = path
-                    head = head_candidate
-            for head, child in itertools.tee(shortest_path):
-                dep_pattern_element = {
-                    'SPEC': {
-                        'NODE_NAME': node_name(child),
-                        'NBOR_NAME': node_name(head),
-                        'NBOR_RELOP': '>'
-                    },
-                    'PATTERN': token_pattern
-                }
-                if dep_pattern_element not in spacy_dep_pattern:
-                    spacy_dep_pattern.append(dep_pattern_element)
-    return spacy_dep_pattern
+        raise TokensNotFullyConnectedError('Try expanding the training example to include all tokens in between those you are trying to match. Or, try the "role-pattern-nlp" module which handles this for you.')
+    tokens_contain_duplicates = util.list_contains_duplicates(match_tokens)
+    if tokens_contain_duplicates:
+        raise DuplicateTokensError('Ensure the match_tokens is a unique list of tokens.')
+    match_tokens = util.sort_by_depth(match_tokens)  # We'll iterate through tokens in descending depth order
+    root_token = match_tokens[0]
+    dependency_pattern = []
+    for i, token in enumerate(match_tokens):
+        features = node_features(token, feature_dict)
+        is_root = token == root_token
+        if is_root:  # This is the first element of the pattern
+            pattern_element = {'SPEC': {'NODE_NAME': node_name(token)}, 'PATTERN': features}
+            dependency_pattern.append(pattern_element)
+        else:
+            head = token.head
+            if head not in match_tokens:
+                raise TokenNotInMatchTokensError('Head token not in match_tokens. Is match_tokens fully connected?')
+            pattern_element = {
+                'SPEC': {
+                    'NODE_NAME': node_name(token),
+                    'NBOR_NAME': node_name(head),
+                    'NBOR_RELOP': '>'
+                },
+                'PATTERN': features
+            }
+            dependency_pattern.append(pattern_element)
+    return dependency_pattern

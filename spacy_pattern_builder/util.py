@@ -110,3 +110,18 @@ def find_matches(doc, pattern):
         tokens = sorted(tokens, key=lambda t: t.i)
         match_list.append(tokens)
     return match_list
+
+
+def de_duplicate_list(list_):
+    unique_list = []
+    for item in list_:
+        if item not in unique_list:
+            unique_list.append(item)
+    return unique_list
+
+
+def list_contains_duplicates(list_):
+    unique_list = de_duplicate_list(list_)
+    if len(list_) > len(unique_list):
+        return True
+    return False

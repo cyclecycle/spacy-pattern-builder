@@ -1,6 +1,6 @@
 # SpaCy Pattern Builder
 
-Use training examples to reverse engineer patterns for use with SpaCy's DependencyTreeMatcher.
+Use training examples to build and refine patterns for use with SpaCy's DependencyTreeMatcher.
 
 ## Motivation
 
