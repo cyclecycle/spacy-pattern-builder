@@ -8,14 +8,16 @@ doc = nlp(text)
 from spacy_pattern_builder import build_dependency_pattern
 
 # Provide a list of tokens we want to match.
-match_example = [doc[i] for i in [0, 1, 3]]  # [We, introduce, methods]
+match_tokens = [doc[i] for i in [0, 1, 3]]  # [We, introduce, methods]
 
-''' Note that these tokens must be constitute a fully connected graph.
+''' Note that these tokens must be fully connected. That is,
+all tokens must have a path to all other tokens in the list,
+without needing to traverse tokens outside of the list.
 Otherwise, spacy-pattern-builder will raise a TokensNotFullyConnectedError.
-You can get the smallest connected subgraph that includes your tokens like: '''
+You can get the connected set that includes your tokens with the following: '''
 from spacy_pattern_builder import util
-connected_tokens = util.smallest_connected_subgraph(match_example, doc)
-assert match_example == connected_tokens
+connected_tokens = util.smallest_connected_subgraph(match_tokens, doc)
+assert match_tokens == connected_tokens
 
 # Specify the token attributes / features to use
 feature_dict = {  # This is equal to the default feature_dict
@@ -24,7 +26,7 @@ feature_dict = {  # This is equal to the default feature_dict
 }
 
 # Build the pattern
-pattern = build_dependency_pattern(doc, match_example, feature_dict=feature_dict)
+pattern = build_dependency_pattern(doc, match_tokens, feature_dict=feature_dict)
 
 from pprint import pprint
 pprint(pattern)  # A pattern in the format consumed by SpaCy's DependencyTreeMatcher:
