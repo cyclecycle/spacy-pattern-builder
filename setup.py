@@ -23,9 +23,10 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='spacy-pattern-builder',
-    version='0.0.1',
-    description='Reverse engineer patterns for use with SpaCy\'s DependencyTreeMatcher',
-    long_description=readme + '\n\n' + doclink + '\n\n' + history,
+    version='0.0.2',
+    description='Reverse engineer patterns for use with the SpaCy DependencyTreeMatcher',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     author='Nick Morley',
     author_email='nick.morley111@gmail.com',
     url='https://github.com/cyclecycle/spacy-pattern-builder',
@@ -33,6 +34,7 @@ setup(
     package_dir={'spacy-pattern-builder': 'spacy-pattern-builder'},
     include_package_data=True,
     install_requires=[
+        'spacy==2.1.4',
         'networkx==2.3',
     ],
     license='MIT',
