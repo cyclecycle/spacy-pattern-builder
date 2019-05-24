@@ -6,5 +6,5 @@ class DuplicateTokensError(Exception):
     pass
 
 
-class TokenNotInMatchTokens(Exception):
+class TokenNotInMatchTokensError(Exception):
     pass

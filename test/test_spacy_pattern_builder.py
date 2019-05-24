@@ -54,3 +54,21 @@ class TestSpacyPatternBuilder(object):
         for match_example in match_examples:
             with pytest.raises(DuplicateTokensError):
                 build_dependency_pattern(doc, match_example)
+
+    def test_pattern_variations_global_substitution(self):
+        doc = self.doc
+        match_example = util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
+        pattern = build_dependency_pattern(doc, match_example)
+        feature_combinations = [['DEP', 'TAG'], ['DEP', 'TAG', 'LOWER']]
+        variations = pattern_variations_global_substitution(pattern, feature_combinations, feature_dict)
+        n_variations = len(list(variations))
+        assert n_variations  == 2
+
+    def test_pattern_variations_elemental_substitution(self):
+        doc = self.doc
+        match_example = util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
+        pattern = build_dependency_pattern(doc, match_example)
+        feature_combinations = [['DEP', 'TAG'], ['DEP', 'TAG', 'LOWER']]
+        variations = pattern_variations_elemental_substitution(pattern, feature_combinations, feature_dict)
+        n_variations = len(list(variations))
+        assert n_variations == 9  # Permutation replacement

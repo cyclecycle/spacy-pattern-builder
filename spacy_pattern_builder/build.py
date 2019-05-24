@@ -1,7 +1,7 @@
 import itertools
 from pprint import pprint
 import spacy_pattern_builder.util as util
-from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError, DuplicateTokensError, TokenNotInMatchTokens
+from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError, DuplicateTokensError, TokenNotInMatchTokensError
 
 
 DEFAULT_BUILD_PATTERN_FEATURE_DICT = {
@@ -19,6 +19,25 @@ def node_features(token, feature_dict):
         name: getattr(token, feature) for name, feature in feature_dict.items()
     }
     return node_features
+
+
+def build_pattern_element(token, feature_dict, nbor=None, operator='>'):
+    features = node_features(token, feature_dict)
+    if not nbor:
+        pattern_element = {
+            'SPEC': {'NODE_NAME': node_name(token)},
+            'PATTERN': features
+        }
+    else:
+        pattern_element = {
+            'SPEC': {
+                'NODE_NAME': node_name(token),
+                'NBOR_NAME': node_name(nbor),
+                'NBOR_RELOP': operator
+            },
+            'PATTERN': features
+        }
+    return pattern_element
 
 
 def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTERN_FEATURE_DICT, nx_graph=None):
@@ -52,22 +71,14 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     root_token = match_tokens[0]
     dependency_pattern = []
     for i, token in enumerate(match_tokens):
-        features = node_features(token, feature_dict)
         is_root = token == root_token
         if is_root:  # This is the first element of the pattern
-            pattern_element = {'SPEC': {'NODE_NAME': node_name(token)}, 'PATTERN': features}
+            pattern_element = build_pattern_element(token, feature_dict)
             dependency_pattern.append(pattern_element)
         else:
             head = token.head
             if head not in match_tokens:
                 raise TokenNotInMatchTokensError('Head token not in match_tokens. Is match_tokens fully connected?')
-            pattern_element = {
-                'SPEC': {
-                    'NODE_NAME': node_name(token),
-                    'NBOR_NAME': node_name(head),
-                    'NBOR_RELOP': '>'
-                },
-                'PATTERN': features
-            }
+            pattern_element = build_pattern_element(token, feature_dict, nbor=head)
             dependency_pattern.append(pattern_element)
     return dependency_pattern
