@@ -2,8 +2,9 @@
 Tests for `spacy-pattern-builder` module.
 """
 import pytest
+from pprint import pprint
 import en_core_web_sm
-from spacy_pattern_builder import build_dependency_pattern
+from spacy_pattern_builder import build_dependency_pattern, yield_pattern_permutations
 from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError, DuplicateTokensError
 import spacy_pattern_builder.util as util
 
@@ -16,7 +17,7 @@ class TestSpacyPatternBuilder(object):
         nlp = en_core_web_sm.load()
         self.doc = nlp(text)
 
-    def test_build_pattern_and_find_matches(self):
+    def test_build_pattern(self):
         doc = self.doc
         match_examples = [
             util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
@@ -55,20 +56,26 @@ class TestSpacyPatternBuilder(object):
             with pytest.raises(DuplicateTokensError):
                 build_dependency_pattern(doc, match_example)
 
-    def test_pattern_variations_global_substitution(self):
+    def test_yield_pattern_permutations(self):
         doc = self.doc
-        match_example = util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
-        pattern = build_dependency_pattern(doc, match_example)
-        feature_combinations = [['DEP', 'TAG'], ['DEP', 'TAG', 'LOWER']]
-        variations = pattern_variations_global_substitution(pattern, feature_combinations, feature_dict)
-        n_variations = len(list(variations))
-        assert n_variations == 2
+        match_example = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
+        feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+        pattern = build_dependency_pattern(doc, match_example, feature_dict)
 
-    def test_pattern_variations_elemental_substitution(self):
-        doc = self.doc
-        match_example = util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
-        pattern = build_dependency_pattern(doc, match_example)
-        feature_combinations = [['DEP', 'TAG'], ['DEP', 'TAG', 'LOWER']]
-        variations = pattern_variations_elemental_substitution(pattern, feature_combinations, feature_dict)
-        n_variations = len(list(variations))
-        assert n_variations == 9  # Permutation replacement
+        feature_sets = (('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
+        pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+        assert pattern_variants == util.de_duplicate_list(pattern_variants)
+        n_variants = len(pattern_variants)
+        assert n_variants == len(feature_sets) ** len(pattern)
+        for pattern_variant in pattern_variants:
+            matches = util.find_matches(doc, pattern_variant)
+            assert match_example in matches
+
+        feature_sets = (('DEP',), ('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
+        pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+        assert pattern_variants == util.de_duplicate_list(pattern_variants)
+        n_variants = len(pattern_variants)
+        assert n_variants == len(feature_sets) ** len(pattern)
+        for pattern_variant in pattern_variants:
+            matches = util.find_matches(doc, pattern_variant)
+            assert match_example in matches

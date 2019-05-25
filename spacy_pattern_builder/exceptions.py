@@ -8,3 +8,7 @@ class DuplicateTokensError(Exception):
 
 class TokenNotInMatchTokensError(Exception):
     pass
+
+
+class FeaturesMissingFromPatternError(Exception):
+    pass

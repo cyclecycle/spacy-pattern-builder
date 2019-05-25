@@ -125,3 +125,11 @@ def list_contains_duplicates(list_):
     if len(list_) > len(unique_list):
         return True
     return False
+
+
+def features_are_in_pattern(features, pattern):
+    for pattern_element in pattern:
+        for feature in features:
+            if feature not in pattern_element['PATTERN']:
+                return False
+    return True
