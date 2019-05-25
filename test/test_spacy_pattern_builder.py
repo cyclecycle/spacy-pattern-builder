@@ -62,7 +62,7 @@ class TestSpacyPatternBuilder(object):
         feature_combinations = [['DEP', 'TAG'], ['DEP', 'TAG', 'LOWER']]
         variations = pattern_variations_global_substitution(pattern, feature_combinations, feature_dict)
         n_variations = len(list(variations))
-        assert n_variations  == 2
+        assert n_variations == 2
 
     def test_pattern_variations_elemental_substitution(self):
         doc = self.doc
