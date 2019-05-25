@@ -1,29 +1,10 @@
-#!/usr/bin/env python
-
-import os
-import sys
-
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from distutils.core import setup
-
-
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
-    sys.exit()
+from setuptools import setup, find_packages
 
 readme = open('README.md').read()
-doclink = """
-Documentation
--------------
-
-The full documentation is at http://spacy-pattern-builder.rtfd.org."""
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='spacy-pattern-builder',
-    version='0.0.2',
+    version='0.0.3',
     description='Reverse engineer patterns for use with the SpaCy DependencyTreeMatcher',
     long_description=readme,
     long_description_content_type='text/markdown',
