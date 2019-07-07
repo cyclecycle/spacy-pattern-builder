@@ -8,7 +8,7 @@ from spacy_pattern_builder import util
 
 def yield_pattern_permutations(pattern, feature_sets):
     # First check all features in feature_sets are present in all pattern_elements
-    all_features = set(itertools.chain(*feature_sets))
+    all_features = set(util.flatten_list(feature_sets))
     all_features_are_in_pattern = util.features_are_in_pattern(all_features, pattern)
     if not all_features_are_in_pattern:
         raise FeaturesMissingFromPatternError('Tried to create pattern permutations using features that are not present in the pattern. Ensure the pattern has all the features specified in feature_sets.')

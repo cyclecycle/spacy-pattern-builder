@@ -1,0 +1,44 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node13"
+    },
+    "PATTERN": {
+      "DEP": "advcl",
+      "TAG": "VBG"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node15",
+      "NBOR_NAME": "node13",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "dobj",
+      "TAG": "NN"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node16",
+      "NBOR_NAME": "node13",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "prep",
+      "TAG": "IN"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node19",
+      "NBOR_NAME": "node16",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "pobj",
+      "TAG": "NNS"
+    }
+  }
+]

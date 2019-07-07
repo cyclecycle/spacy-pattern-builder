@@ -55,10 +55,7 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     # Pre-flight checks
     if not nx_graph:
         nx_graph = util.doc_to_nx_graph(doc)
-    try:
-        doc[0]._.depth
-    except AttributeError:
-        util.annotate_token_depth(doc)
+    util.annotate_token_depth(doc)
     connected_tokens = util.smallest_connected_subgraph(
         match_tokens, doc, nx_graph=nx_graph)
     tokens_not_fully_connected = match_tokens != connected_tokens
@@ -68,17 +65,26 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     if tokens_contain_duplicates:
         raise DuplicateTokensError('Ensure the match_tokens is a unique list of tokens.')
     match_tokens = util.sort_by_depth(match_tokens)  # We'll iterate through tokens in descending depth order
-    root_token = match_tokens[0]
     dependency_pattern = []
-    for i, token in enumerate(match_tokens):
-        is_root = token == root_token
-        if is_root:  # This is the first element of the pattern
-            pattern_element = build_pattern_element(token, feature_dict)
+    root_token = match_tokens[0]
+    pattern_element = build_pattern_element(root_token, feature_dict, operator='>')
+    dependency_pattern.append(pattern_element)
+    tokens_in_pattern = [root_token]
+    non_root_tokens = match_tokens[1:]
+    for i, token in enumerate(non_root_tokens):
+        # If the token is a right sibling of a token already in the pattern, add a sibling relationship. If not, add a parent-child relationship.
+        left_siblings = util.siblings(token, side='left')
+        left_siblings_in_pattern = [t for t in left_siblings if t in tokens_in_pattern]
+        if left_siblings_in_pattern:
+            last_left_sibling_in_pattern = left_siblings_in_pattern[-1]
+            pattern_element = build_pattern_element(
+                token, feature_dict, nbor=last_left_sibling_in_pattern, operator='$--')
             dependency_pattern.append(pattern_element)
-        else:
+        else:  # Parent-child relation
             head = token.head
             if head not in match_tokens:
                 raise TokenNotInMatchTokensError('Head token not in match_tokens. Is match_tokens fully connected?')
-            pattern_element = build_pattern_element(token, feature_dict, nbor=head)
+            pattern_element = build_pattern_element(token, feature_dict, nbor=head, operator='>')
             dependency_pattern.append(pattern_element)
+        tokens_in_pattern.append(token)
     return dependency_pattern

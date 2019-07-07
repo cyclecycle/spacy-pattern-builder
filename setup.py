@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 
 readme = open('README.md').read()
+requirements = open('requirements.txt').read().splitlines()
 
 setup(
     name='spacy-pattern-builder',
@@ -14,10 +15,7 @@ setup(
     packages=find_packages(),
     package_dir={'spacy-pattern-builder': 'spacy-pattern-builder'},
     include_package_data=True,
-    install_requires=[
-        'spacy==2.1.4',
-        'networkx==2.3',
-    ],
+    install_requires=requirements,
     license='MIT',
     zip_safe=False,
     keywords='spacy-pattern-builder',

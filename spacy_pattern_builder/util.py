@@ -1,7 +1,6 @@
 import itertools
 import networkx as nx
 from spacy.tokens import Token
-from spacy.matcher import DependencyTreeMatcher
 
 
 def annotate_token_depth(doc):
@@ -34,6 +33,18 @@ def sort_by_depth(tokens):
 
 def sort_by_idx(tokens):
     return sorted(tokens, key=lambda w: w.i)
+
+
+def siblings(token, side=None):
+    try:
+        siblings = token.head.children
+    except:
+        return []
+    if side == 'left':
+        siblings = [s for s in siblings if s.i < token.i]
+    elif side == 'left':
+        siblings = [s for s in siblings if s.i > token.i]
+    return siblings
 
 
 def doc_to_nx_graph(doc):
@@ -95,23 +106,6 @@ def idxs_to_tokens(doc, idxs):
     return [doc[idx] for idx in idxs]
 
 
-def build_matcher(vocab, pattern):
-    matcher = DependencyTreeMatcher(vocab)
-    matcher.add('pattern', None, pattern)
-    return matcher
-
-
-def find_matches(doc, pattern):
-    matcher = build_matcher(doc.vocab, pattern)
-    matches = matcher(doc)
-    match_list = []
-    for match_id, token_idxs in matches:
-        tokens = [doc[idx] for idx in token_idxs]
-        tokens = sorted(tokens, key=lambda t: t.i)
-        match_list.append(tokens)
-    return match_list
-
-
 def de_duplicate_list(list_):
     unique_list = []
     for item in list_:
@@ -133,3 +127,7 @@ def features_are_in_pattern(features, pattern):
             if feature not in pattern_element['PATTERN']:
                 return False
     return True
+
+
+def flatten_list(list_):
+    return list(itertools.chain(*list_))
