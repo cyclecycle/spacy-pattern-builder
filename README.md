@@ -1,6 +1,6 @@
 # SpaCy Pattern Builder
 
-Use training examples to build and refine patterns for use with SpaCy's DependencyTreeMatcher.
+Use training examples to build and refine patterns for use with SpaCy's DependencyMatcher.
 
 ## Motivation
 
@@ -36,10 +36,10 @@ Otherwise, spacy-pattern-builder will raise a TokensNotFullyConnectedError.
 You can get a connected set that includes your tokens with the following: '''
 from spacy_pattern_builder import util
 connected_tokens = util.smallest_connected_subgraph(match_tokens, doc)
-assert match_tokens == connected_tokens
+assert match_tokens == connected_tokens  # In this case, the tokens we provided are already fully connected
 
 # Specify the token attributes / features to use
-feature_dict = {  # This here is equal to the default feature_dict
+feature_dict = {  # This is equal to the default feature_dict
     'DEP': 'dep_',
     'TAG': 'tag_'
 }
@@ -48,7 +48,7 @@ feature_dict = {  # This here is equal to the default feature_dict
 pattern = build_dependency_pattern(doc, match_tokens, feature_dict=feature_dict)
 
 from pprint import pprint
-pprint(pattern)  # In the format consumed by SpaCy's DependencyTreeMatcher:
+pprint(pattern)  # In the format consumed by SpaCy's DependencyMatcher:
 '''
 [{'PATTERN': {'DEP': 'ROOT', 'TAG': 'VBP'}, 'SPEC': {'NODE_NAME': 'node1'}},
  {'PATTERN': {'DEP': 'nsubj', 'TAG': 'PRP'},
@@ -58,16 +58,16 @@ pprint(pattern)  # In the format consumed by SpaCy's DependencyTreeMatcher:
 '''
 
 # Create a matcher and add the newly generated pattern
-from spacy.matcher import DependencyTreeMatcher
+from spacy.matcher import DependencyMatcher
 
 matcher = DependencyTreeMatcher(doc.vocab)
 matcher.add('pattern', None, pattern)
 
-# And match away
+# And get matches
 matches = matcher(doc)
 for match_id, token_idxs in matches:
     tokens = [doc[i] for i in token_idxs]
-    tokens = sorted(tokens, key=lambda w: w.i)
+    tokens = sorted(tokens, key=lambda w: w.i)  # Make sure tokens are in their original order
     print(tokens)  # [We, introduce, methods]
 
 ```

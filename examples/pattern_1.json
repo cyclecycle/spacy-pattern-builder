@@ -22,8 +22,8 @@
   {
     "SPEC": {
       "NODE_NAME": "node16",
-      "NBOR_NAME": "node13",
-      "NBOR_RELOP": ">"
+      "NBOR_NAME": "node15",
+      "NBOR_RELOP": "$--"
     },
     "PATTERN": {
       "DEP": "prep",

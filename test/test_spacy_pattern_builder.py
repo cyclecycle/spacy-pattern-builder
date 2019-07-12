@@ -51,24 +51,24 @@ doc3 = nlp(text3)
 
 class TestSpacyPatternBuilder(object):
 
-    # def test_build_pattern(self):
-    #     doc = doc1
-    #     match_examples = [
-    #         util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
-    #         util.idxs_to_tokens(doc, [13, 15, 16, 19]),  # [demonstrating, application, to, courses]
-    #     ]
-    #     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
-    #     for i, match_example in enumerate(match_examples):
-    #         pattern = build_dependency_pattern(
-    #             doc,
-    #             match_example,
-    #             feature_dict,
-    #         )
-    #         matches = match.find_matches(doc, pattern)
-    #         assert match_example in matches
-    #         pattern_file_name = 'examples/pattern_{}.json'.format(i)
-    #         with open(pattern_file_name, 'w') as f:
-    #             json.dump(pattern, f, indent=2)
+    def test_build_pattern(self):
+        doc = doc1
+        match_examples = [
+            util.idxs_to_tokens(doc, [0, 1, 3]),  # [We, introduce, methods]
+            util.idxs_to_tokens(doc, [13, 15, 16, 19]),  # [demonstrating, application, to, courses]
+        ]
+        feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
+        for i, match_example in enumerate(match_examples):
+            pattern = build_dependency_pattern(
+                doc,
+                match_example,
+                feature_dict,
+            )
+            matches = match.find_matches(doc, pattern)
+            assert match_example in matches
+            pattern_file_name = 'examples/pattern_{}.json'.format(i)
+            with open(pattern_file_name, 'w') as f:
+                json.dump(pattern, f, indent=2)
 
     def test_build_pattern_2(self):
         match_example = util.idxs_to_tokens(doc3, [0, 1, 2, 4])  # [We, focused, on, tea]
@@ -78,57 +78,55 @@ class TestSpacyPatternBuilder(object):
             match_example,
             feature_dict,
         )
-        pprint(pattern)
         matches = match.find_matches(doc3, pattern)
         assert match_example in matches
         matches = match.find_matches(doc2, pattern)
-        false_pos = util.idxs_to_tokens(doc2, [4, 8, 9, 18])  # [We, focused, on, tea]
+        false_pos = util.idxs_to_tokens(doc2, [4, 8, 9, 18])  # [in, we, observed, in]
         assert false_pos not in matches
-        
 
-    # def test_tokens_not_connected_error(self):
-    #     doc = doc1
-    #     match_examples = [
-    #         util.idxs_to_tokens(doc, [19, 20, 21, 27]),  # [courses, generated, by, models]
-    #     ]
-    #     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
-    #     for match_example in match_examples:
-    #         with pytest.raises(TokensNotFullyConnectedError):
-    #             build_dependency_pattern(
-    #                 doc,
-    #                 match_example,
-    #                 feature_dict,
-    #             )
+    def test_tokens_not_connected_error(self):
+        doc = doc1
+        match_examples = [
+            util.idxs_to_tokens(doc, [19, 20, 21, 27]),  # [courses, generated, by, models]
+        ]
+        feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
+        for match_example in match_examples:
+            with pytest.raises(TokensNotFullyConnectedError):
+                build_dependency_pattern(
+                    doc,
+                    match_example,
+                    feature_dict,
+                )
 
-    # def test_duplicate_tokens_error(self):
-    #     doc = doc1
-    #     match_examples = [
-    #         util.idxs_to_tokens(doc, [0, 1, 1, 3]),  # [We, introduce, introduce, methods]
-    #     ]
-    #     for match_example in match_examples:
-    #         with pytest.raises(DuplicateTokensError):
-    #             build_dependency_pattern(doc, match_example)
+    def test_duplicate_tokens_error(self):
+        doc = doc1
+        match_examples = [
+            util.idxs_to_tokens(doc, [0, 1, 1, 3]),  # [We, introduce, introduce, methods]
+        ]
+        for match_example in match_examples:
+            with pytest.raises(DuplicateTokensError):
+                build_dependency_pattern(doc, match_example)
 
-    # def test_yield_pattern_permutations(self):
-    #     doc = doc1
-    #     match_example = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
-    #     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-    #     pattern = build_dependency_pattern(doc, match_example, feature_dict)
+    def test_yield_pattern_permutations(self):
+        doc = doc1
+        match_example = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
+        feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+        pattern = build_dependency_pattern(doc, match_example, feature_dict)
 
-    #     feature_sets = (('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
-    #     pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
-    #     assert not util.list_contains_duplicates(pattern_variants)
-    #     n_variants = len(pattern_variants)
-    #     assert n_variants == len(feature_sets) ** len(pattern)
-    #     for pattern_variant in pattern_variants:
-    #         matches = match.find_matches(doc, pattern_variant)
-    #         assert match_example in matches
+        feature_sets = (('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
+        pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+        assert not util.list_contains_duplicates(pattern_variants)
+        n_variants = len(pattern_variants)
+        assert n_variants == len(feature_sets) ** len(pattern)
+        for pattern_variant in pattern_variants:
+            matches = match.find_matches(doc, pattern_variant)
+            assert match_example in matches
 
-    #     feature_sets = (('DEP',), ('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
-    #     pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
-    #     assert not util.list_contains_duplicates(pattern_variants)
-    #     n_variants = len(pattern_variants)
-    #     assert n_variants == len(feature_sets) ** len(pattern)
-    #     for pattern_variant in pattern_variants:
-    #         matches = match.find_matches(doc, pattern_variant)
-    #         assert match_example in matches
+        feature_sets = (('DEP',), ('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
+        pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+        assert not util.list_contains_duplicates(pattern_variants)
+        n_variants = len(pattern_variants)
+        assert n_variants == len(feature_sets) ** len(pattern)
+        for pattern_variant in pattern_variants:
+            matches = match.find_matches(doc, pattern_variant)
+            assert match_example in matches

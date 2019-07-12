@@ -22,8 +22,8 @@
   {
     "SPEC": {
       "NODE_NAME": "node3",
-      "NBOR_NAME": "node1",
-      "NBOR_RELOP": ">"
+      "NBOR_NAME": "node0",
+      "NBOR_RELOP": "$--"
     },
     "PATTERN": {
       "DEP": "dobj",
