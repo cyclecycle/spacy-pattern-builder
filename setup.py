@@ -5,7 +5,7 @@ requirements = open('requirements.txt').read().splitlines()
 
 setup(
     name='spacy-pattern-builder',
-    version='0.0.3',
+    version='0.0.4',
     description='Reverse engineer patterns for use with the SpaCy DependencyTreeMatcher',
     long_description=readme,
     long_description_content_type='text/markdown',
