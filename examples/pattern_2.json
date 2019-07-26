@@ -1,0 +1,44 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node1"
+    },
+    "PATTERN": {
+      "DEP": "ROOT",
+      "TAG": "VBD"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node0",
+      "NBOR_NAME": "node1",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "nsubj",
+      "TAG": "PRP"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node2",
+      "NBOR_NAME": "node0",
+      "NBOR_RELOP": "$--"
+    },
+    "PATTERN": {
+      "DEP": "prep",
+      "TAG": "IN"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node4",
+      "NBOR_NAME": "node2",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "pobj",
+      "TAG": "NN"
+    }
+  }
+]

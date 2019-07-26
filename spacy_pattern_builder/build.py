@@ -64,7 +64,7 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     tokens_contain_duplicates = util.list_contains_duplicates(match_tokens)
     if tokens_contain_duplicates:
         raise DuplicateTokensError('Ensure the match_tokens is a unique list of tokens.')
-    match_tokens = util.sort_by_depth(match_tokens)  # We'll iterate through tokens in descending depth order
+    match_tokens = util.sort_by_depth(match_tokens)  # Iterate through tokens in descending depth order
     dependency_pattern = []
     root_token = match_tokens[0]
     pattern_element = build_pattern_element(root_token, feature_dict, operator='>')
@@ -72,7 +72,7 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     tokens_in_pattern = [root_token]
     non_root_tokens = match_tokens[1:]
     for i, token in enumerate(non_root_tokens):
-        # If the token is a right sibling of a token already in the pattern, add a sibling relationship. If not, add a parent-child relationship.
+        # If the token is a right sibling of a token already in the pattern, also add a sibling relationship.
         left_siblings = util.siblings(token, side='left')
         left_siblings_in_pattern = [t for t in left_siblings if t in tokens_in_pattern]
         if left_siblings_in_pattern:
