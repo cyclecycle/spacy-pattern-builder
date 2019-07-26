@@ -58,7 +58,9 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     util.annotate_token_depth(doc)
     connected_tokens = util.smallest_connected_subgraph(
         match_tokens, doc, nx_graph=nx_graph)
-    tokens_not_fully_connected = match_tokens != connected_tokens
+    match_token_ids = util.token_idxs(match_tokens)
+    connected_token_ids = util.token_idxs(connected_tokens)
+    tokens_not_fully_connected = set(match_token_ids) != set(connected_token_ids)
     if tokens_not_fully_connected:
         raise TokensNotFullyConnectedError('Try expanding the training example to include all tokens in between those you are trying to match. Or, try the "role-pattern-nlp" module which handles this for you.')
     tokens_contain_duplicates = util.list_contains_duplicates(match_tokens)

@@ -55,7 +55,7 @@ cases = [
     {
         'example': {
             'doc': doc4,
-            'match': util.idxs_to_tokens(doc4, [0, 2, 4]),  # L-theanine improved relaxation
+            'match': util.idxs_to_tokens(doc4, [2, 4, 8]),  # [theanine, relaxation, improved]
         },
     }
 ]
@@ -68,13 +68,14 @@ class TestSpacyPatternBuilder(object):
         for i, case in enumerate(cases):
             doc = case['example']['doc']
             match_example = case['example']['match']
+            print(match_example)
             pattern = build_dependency_pattern(
                 doc,
                 match_example,
                 feature_dict,
             )
             matches = match.find_matches(doc, pattern)
-            assert match_example in matches
+            assert match_example in matches, 'does not match example'
             pattern_file_name = 'examples/pattern_{}.json'.format(i)
             with open(pattern_file_name, 'w') as f:
                 json.dump(pattern, f, indent=2)
@@ -83,13 +84,13 @@ class TestSpacyPatternBuilder(object):
                     doc = item['doc']
                     hit_match = item['match']
                     matches = match.find_matches(doc, pattern)
-                    assert hit_match in matches
+                    assert hit_match in matches, 'false negative'
             if 'should_miss' in case:
                 for item in case['should_miss']:
                     doc = item['doc']
                     miss_match = item['match']
                     matches = match.find_matches(doc, pattern)
-                    assert miss_match not in matches
+                    assert miss_match not in matches, 'false positive'
 
     def test_tokens_not_connected_error(self):
         doc = doc1

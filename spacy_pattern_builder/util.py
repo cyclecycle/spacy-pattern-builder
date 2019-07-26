@@ -106,6 +106,10 @@ def idxs_to_tokens(doc, idxs):
     return [doc[idx] for idx in idxs]
 
 
+def token_idxs(tokens):
+    return [t.i for t in tokens]
+
+
 def de_duplicate_list(list_):
     unique_list = []
     for item in list_:

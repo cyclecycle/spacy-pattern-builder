@@ -21,12 +21,12 @@
   },
   {
     "SPEC": {
-      "NODE_NAME": "node0",
+      "NODE_NAME": "node8",
       "NBOR_NAME": "node2",
-      "NBOR_RELOP": ">"
+      "NBOR_RELOP": "$--"
     },
     "PATTERN": {
-      "DEP": "compound",
+      "DEP": "dobj",
       "TAG": "NN"
     }
   }
