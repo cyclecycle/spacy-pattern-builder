@@ -9,6 +9,7 @@ def build_matcher(vocab, pattern):
 
 def find_matches(doc, pattern):
     matcher = build_matcher(doc.vocab, pattern)
+    # print(doc, pattern)
     matches = matcher(doc)
     match_list = []
     for match_id, match_trees in matches:

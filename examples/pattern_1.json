@@ -5,7 +5,9 @@
     },
     "PATTERN": {
       "DEP": "advcl",
-      "TAG": "VBG"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -16,7 +18,9 @@
     },
     "PATTERN": {
       "DEP": "dobj",
-      "TAG": "NN"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -27,7 +31,9 @@
     },
     "PATTERN": {
       "DEP": "prep",
-      "TAG": "IN"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -38,7 +44,9 @@
     },
     "PATTERN": {
       "DEP": "pobj",
-      "TAG": "NNS"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   }
 ]

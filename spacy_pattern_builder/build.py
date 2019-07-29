@@ -15,9 +15,16 @@ def node_name(token):
 
 
 def node_features(token, feature_dict):
+    native_feature_dict = {name: feature for name, feature in feature_dict.items() if name != '_'}
+    extension_feature_dict = feature_dict.get('_', None)
     node_features = {
-        name: getattr(token, feature) for name, feature in feature_dict.items()
+        name: getattr(token, feature) for name, feature in native_feature_dict.items()
     }
+    if extension_feature_dict:
+        extension_node_features = {
+            name: getattr(token._, feature) for name, feature in extension_feature_dict.items()
+        }
+        node_features['_'] = extension_node_features
     return node_features
 
 

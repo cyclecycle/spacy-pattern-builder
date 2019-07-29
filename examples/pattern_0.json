@@ -5,7 +5,9 @@
     },
     "PATTERN": {
       "DEP": "ROOT",
-      "TAG": "VBP"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -16,7 +18,9 @@
     },
     "PATTERN": {
       "DEP": "nsubj",
-      "TAG": "PRP"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -27,7 +31,9 @@
     },
     "PATTERN": {
       "DEP": "dobj",
-      "TAG": "NNS"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   }
 ]

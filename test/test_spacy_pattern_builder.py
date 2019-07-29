@@ -5,6 +5,7 @@ import pytest
 from pprint import pprint
 import json
 import en_core_web_sm
+from spacy.tokens import Token
 from spacy_pattern_builder import build_dependency_pattern, yield_pattern_permutations
 from spacy_pattern_builder.exceptions import TokensNotFullyConnectedError, DuplicateTokensError
 import spacy_pattern_builder.util as util
@@ -68,7 +69,37 @@ class TestSpacyPatternBuilder(object):
         for i, case in enumerate(cases):
             doc = case['example']['doc']
             match_example = case['example']['match']
-            print(match_example)
+            pattern = build_dependency_pattern(
+                doc,
+                match_example,
+                feature_dict,
+            )
+            matches = match.find_matches(doc, pattern)
+            assert match_example in matches, 'does not match example'
+            pattern_file_name = 'examples/pattern_{}.json'.format(i)
+            with open(pattern_file_name, 'w') as f:
+                json.dump(pattern, f, indent=2)
+            if 'should_hit' in case:
+                for item in case['should_hit']:
+                    doc = item['doc']
+                    hit_match = item['match']
+                    matches = match.find_matches(doc, pattern)
+                    assert hit_match in matches, 'false negative'
+            if 'should_miss' in case:
+                for item in case['should_miss']:
+                    doc = item['doc']
+                    miss_match = item['match']
+                    matches = match.find_matches(doc, pattern)
+                    assert miss_match not in matches, 'false positive'
+
+    def test_underscore_attribute(self):
+        Token.set_extension('custom_attr', default=False)
+        feature_dict = {'DEP': 'dep_', '_': {'custom_attr': 'custom_attr'}}
+        for i, case in enumerate(cases):
+            doc = case['example']['doc']
+            for token in doc:
+                token._.custom_attr = 'my_attr'
+            match_example = case['example']['match']
             pattern = build_dependency_pattern(
                 doc,
                 match_example,

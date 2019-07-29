@@ -5,7 +5,9 @@
     },
     "PATTERN": {
       "DEP": "ROOT",
-      "TAG": "VBD"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -16,7 +18,9 @@
     },
     "PATTERN": {
       "DEP": "nsubj",
-      "TAG": "PRP"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -27,7 +31,9 @@
     },
     "PATTERN": {
       "DEP": "prep",
-      "TAG": "IN"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   },
   {
@@ -38,7 +44,9 @@
     },
     "PATTERN": {
       "DEP": "pobj",
-      "TAG": "NN"
+      "_": {
+        "custom_attr": "my_attr"
+      }
     }
   }
 ]
