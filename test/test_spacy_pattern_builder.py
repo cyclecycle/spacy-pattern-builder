@@ -6,7 +6,12 @@ from pprint import pprint
 import json
 import en_core_web_sm
 from spacy.tokens import Token
-from spacy_pattern_builder import build_dependency_pattern, yield_pattern_permutations
+from spacy_pattern_builder import (
+    build_dependency_pattern,
+    yield_pattern_permutations,
+    yield_node_level_pattern_variants,
+    yield_extended_trees,
+)
 from spacy_pattern_builder.exceptions import (
     TokensNotFullyConnectedError,
     DuplicateTokensError,
@@ -96,7 +101,7 @@ class TestSpacyPatternBuilder(object):
                     matches = match.find_matches(doc, pattern)
                     assert miss_match not in matches, 'false positive'
 
-    def test_underscore_attribute(self):
+    def test_custom_extension(self):
         Token.set_extension('custom_attr', default=False)
         feature_dict = {'DEP': 'dep_', '_': {'custom_attr': 'custom_attr'}}
         for i, case in enumerate(cases):
@@ -146,26 +151,70 @@ class TestSpacyPatternBuilder(object):
             with pytest.raises(DuplicateTokensError):
                 build_dependency_pattern(doc, match_example)
 
-    def test_yield_pattern_permutations(self):
+    def test_yield_node_level_pattern_variants(self):
+        # Build initial pattern
         doc = doc1
-        match_example = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
+        match_tokens = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
+        feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
+        pattern = build_dependency_pattern(doc, match_tokens, feature_dict)
+
+        feature_dicts = (
+            {'DEP': 'dep_', 'TAG': 'tag_'},
+            {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'},
+        )
+        pattern_variants = list(
+            yield_node_level_pattern_variants(pattern, match_tokens, feature_dicts)
+        )
+        assert not util.list_contains_duplicates(pattern_variants)
+        n_variants = len(pattern_variants)
+        assert n_variants == len(feature_dicts) ** len(pattern)
+        for pattern_variant in pattern_variants:
+            matches = match.find_matches(doc, pattern_variant)
+            assert match_tokens in matches
+
+    def test_yield_extended_trees(self):
+        # Build initial pattern
+        doc = doc1
+        match_tokens = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
         feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-        pattern = build_dependency_pattern(doc, match_example, feature_dict)
+        pattern = build_dependency_pattern(doc, match_tokens, feature_dict)
 
-        feature_sets = (('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
-        pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+        match_tokens_variants = list(yield_extended_trees(match_tokens))
+
+        pattern_variants = [
+            build_dependency_pattern(doc, match_token_variant, feature_dict)
+            for match_token_variant in match_tokens_variants
+        ]
+
         assert not util.list_contains_duplicates(pattern_variants)
         n_variants = len(pattern_variants)
-        assert n_variants == len(feature_sets) ** len(pattern)
-        for pattern_variant in pattern_variants:
+        for pattern_variant, match_tokens_variant in zip(
+            pattern_variants, match_tokens_variants
+        ):
             matches = match.find_matches(doc, pattern_variant)
-            assert match_example in matches
+            match_tokens_variant = sorted(match_tokens_variant, key=lambda t: t.i)
+            assert match_tokens_variant in matches
 
-        feature_sets = (('DEP',), ('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
-        pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
-        assert not util.list_contains_duplicates(pattern_variants)
-        n_variants = len(pattern_variants)
-        assert n_variants == len(feature_sets) ** len(pattern)
-        for pattern_variant in pattern_variants:
-            matches = match.find_matches(doc, pattern_variant)
-            assert match_example in matches
+    # def test_yield_pattern_permutations(self):
+    #     doc = doc1
+    #     match_example = util.idxs_to_tokens(doc, [0, 1, 3])  # [We, introduce, methods]
+    #     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+    #     pattern = build_dependency_pattern(doc, match_example, feature_dict)
+
+    #     feature_sets = (('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
+    #     pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+    #     assert not util.list_contains_duplicates(pattern_variants)
+    #     n_variants = len(pattern_variants)
+    #     assert n_variants == len(feature_sets) ** len(pattern)
+    #     for pattern_variant in pattern_variants:
+    #         matches = match.find_matches(doc, pattern_variant)
+    #         assert match_example in matches
+
+    #     feature_sets = (('DEP',), ('DEP', 'TAG'), ('DEP', 'TAG', 'LOWER'))
+    #     pattern_variants = list(yield_pattern_permutations(pattern, feature_sets))
+    #     assert not util.list_contains_duplicates(pattern_variants)
+    #     n_variants = len(pattern_variants)
+    #     assert n_variants == len(feature_sets) ** len(pattern)
+    #     for pattern_variant in pattern_variants:
+    #         matches = match.find_matches(doc, pattern_variant)
+    #         assert match_example in matches

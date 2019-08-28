@@ -59,7 +59,7 @@ def build_dependency_pattern(doc, match_tokens, feature_dict=DEFAULT_BUILD_PATTE
     Returns:
         [list] -- Dependency pattern in the format consumed by SpaCy's DependencyTreeMatcher
     '''
-    # Pre-flight checks
+    # Checks
     if not nx_graph:
         nx_graph = util.doc_to_nx_graph(doc)
     util.annotate_token_depth(doc)
