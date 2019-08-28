@@ -39,9 +39,11 @@ def yield_node_level_pattern_variants(pattern, match_tokens, feature_dicts):
         new_pattern_elements = []
         for feature_dict in feature_dicts:
             new_token_features = {}
+            custom_extensions = feature_dict.pop('_', {})
             for k, v in feature_dict.items():
                 new_token_features[k] = getattr(token, v)
-                # TODO handle custom extensions
+            for k, v in custom_extensions.items():
+                new_token_features[k] = getattr(token._, v)
             new_pattern_element = {
                 'SPEC': pattern_element['SPEC'],
                 'PATTERN': new_token_features,
@@ -55,7 +57,8 @@ def yield_extended_trees(match_tokens):
     min_depth = min([t._.depth for t in match_tokens])
     extend_by = []
     for token in match_tokens:
-        if token._.depth == min_depth:  # Token is a root node of pattern
+        is_root = token._.depth == min_depth
+        if is_root:
             extend_by.append(token.head)
         extend_by += token.children
         extend_by += util.siblings(token)
