@@ -2,8 +2,9 @@
 '''
 from pprint import pprint
 import itertools
-from spacy_pattern_builder.exceptions import FeaturesMissingFromPatternError
+from spacy_pattern_builder import build
 from spacy_pattern_builder import util
+from spacy_pattern_builder.exceptions import FeaturesMissingFromPatternError
 
 
 def yield_pattern_permutations(pattern, feature_sets):
@@ -38,12 +39,7 @@ def yield_node_level_pattern_variants(pattern, match_tokens, feature_dicts):
     for pattern_element, token in zip(pattern, match_tokens):
         new_pattern_elements = []
         for feature_dict in feature_dicts:
-            new_token_features = {}
-            custom_extensions = feature_dict.pop('_', {})
-            for k, v in feature_dict.items():
-                new_token_features[k] = getattr(token, v)
-            for k, v in custom_extensions.items():
-                new_token_features[k] = getattr(token._, v)
+            new_token_features = build.node_features(token, feature_dict)
             new_pattern_element = {
                 'SPEC': pattern_element['SPEC'],
                 'PATTERN': new_token_features,
