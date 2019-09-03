@@ -1,2 +1,2 @@
 spacy
-networkx==2.3
+networkx
