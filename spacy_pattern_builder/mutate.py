@@ -57,7 +57,9 @@ def yield_extended_trees(match_tokens):
         if is_root:
             extend_by.append(token.head)
         extend_by += token.children
-        extend_by += util.siblings(token)
+        if not is_root:
+            # Only extend by siblings if the token is not root, as this would also require adding the common root that connects these siblings or else the tokens would not be fully connected.
+            extend_by += util.siblings(token)
     extend_by = [t for t in extend_by if t]
     extend_by = [t for t in extend_by if t not in match_tokens]
     extend_by = util.de_duplicate_list(extend_by)
