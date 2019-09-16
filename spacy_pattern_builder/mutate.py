@@ -39,19 +39,22 @@ def yield_node_level_pattern_variants(pattern, match_tokens, feature_dicts, muta
     match_tokens = util.sort_by_depth(match_tokens)
     pattern_element_combinations = []
     for pattern_element, token in zip(pattern, match_tokens):
-        new_pattern_elements = []
         if token not in mutate_tokens:
-            new_pattern_elements.append(pattern_element)
-            continue
-        for feature_dict in feature_dicts:
-            new_token_features = build.node_features(token, feature_dict)
-            new_pattern_element = {
-                'SPEC': pattern_element['SPEC'],
-                'PATTERN': new_token_features,
-            }
-            new_pattern_elements.append(new_pattern_element)
+            new_pattern_elements = [pattern_element for _ in feature_dicts]
+        else:
+            new_pattern_elements = []
+            for feature_dict in feature_dicts:
+                new_token_features = build.node_features(token, feature_dict)
+                new_pattern_element = {
+                    'SPEC': pattern_element['SPEC'],
+                    'PATTERN': new_token_features,
+                }
+                new_pattern_elements.append(new_pattern_element)
         pattern_element_combinations.append(new_pattern_elements)
-    return itertools.product(*pattern_element_combinations)
+    pattern_variants = itertools.product(*pattern_element_combinations)
+    for variant in pattern_variants:
+        assert len(variant) == len(pattern)
+        yield variant
 
 
 def yield_extended_trees(match_tokens):

@@ -172,6 +172,18 @@ class TestSpacyPatternBuilder(object):
             matches = match.find_matches(doc, pattern_variant)
             assert match_tokens in matches
 
+        # Test mutate_tokens parameter
+        pattern_variants = list(
+            yield_node_level_pattern_variants(
+                pattern, match_tokens, feature_dicts, mutate_tokens=[match_tokens[1]]
+            )
+        )
+        n_variants = len(pattern_variants)
+        assert n_variants == len(feature_dicts) ** len(pattern)
+        for pattern_variant in pattern_variants:
+            matches = match.find_matches(doc, pattern_variant)
+            assert match_tokens in matches
+
     def test_yield_extended_trees(self):
         # Build initial pattern
         doc = doc1
