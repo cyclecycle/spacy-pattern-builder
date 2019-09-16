@@ -32,12 +32,17 @@ def yield_pattern_permutations(pattern, feature_sets):
     return itertools.product(*pattern_element_combinations)
 
 
-def yield_node_level_pattern_variants(pattern, match_tokens, feature_dicts):
+def yield_node_level_pattern_variants(pattern, match_tokens, feature_dicts, mutate_tokens=[]):
     # Sort tokens by depth and assume to match one-to-one with pattern
+    if not mutate_tokens:
+        mutate_tokens = match_tokens
     match_tokens = util.sort_by_depth(match_tokens)
     pattern_element_combinations = []
     for pattern_element, token in zip(pattern, match_tokens):
         new_pattern_elements = []
+        if token not in mutate_tokens:
+            new_pattern_elements.append(pattern_element)
+            continue
         for feature_dict in feature_dicts:
             new_token_features = build.node_features(token, feature_dict)
             new_pattern_element = {
